@@ -1,0 +1,17 @@
+{
+  "name": "Couchbase Plugin",
+  "id": "couchbase",
+  "properties": [
+    {
+      "name": "stackTraceThresholdMillis",
+      "type": "double",
+      "default": 1000.0,
+      "label": "Stack trace threshold (millis)",
+      "description": "Any query that exceeds this threshold will have a stack trace captured and attached to it."
+    }
+  ],
+  "aspects": [
+    "org.glowroot.agent.plugin.couchbase.BucketAspect",
+    "org.glowroot.agent.plugin.couchbase.N1qlQueryResultAspect"
+  ]
+}
