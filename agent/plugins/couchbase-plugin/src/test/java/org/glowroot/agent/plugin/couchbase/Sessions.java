@@ -14,10 +14,14 @@ class Sessions {
 
     static Bucket createBucket() throws Exception {
         Cluster cluster = CouchbaseCluster.create("127.0.0.1");
+
+        cluster.clusterManager("Administrator", "password").removeBucket("test");
+
         BucketSettings bucketSettings = DefaultBucketSettings.builder()
                 .name("test")
+                .quota(100)
                 .enableFlush(true);
-        cluster.clusterManager().insertBucket(bucketSettings, 1, TimeUnit.MINUTES);
+        cluster.clusterManager("Administrator", "password").insertBucket(bucketSettings, 1, TimeUnit.MINUTES);
 
         Bucket bucket = cluster.openBucket("test", 1, TimeUnit.MINUTES);
         bucket.bucketManager().createN1qlPrimaryIndex(true, false, 1, TimeUnit.MINUTES);

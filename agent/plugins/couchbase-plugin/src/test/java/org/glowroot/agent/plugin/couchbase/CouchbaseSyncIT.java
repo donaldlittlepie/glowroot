@@ -1,9 +1,11 @@
 package org.glowroot.agent.plugin.couchbase;
 
 import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.query.N1qlParams;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.couchbase.client.java.query.consistency.ScanConsistency;
 import org.glowroot.agent.it.harness.AppUnderTest;
 import org.glowroot.agent.it.harness.Container;
 import org.glowroot.agent.it.harness.TransactionMarker;
@@ -48,6 +50,7 @@ public class CouchbaseSyncIT {
         Trace.Entry entry = i.next();
         assertThat(entry.getDepth()).isEqualTo(0);
         assertThat(entry.getMessage()).isEmpty();
+        assertThat(sharedQueryTexts.get(entry.getQueryEntryMessage().getSharedQueryTextIndex()).getFullText()).isEqualTo("select * from test");
     }
 
 
@@ -64,7 +67,9 @@ public class CouchbaseSyncIT {
 
         @Override
         public void transactionMarker() throws Exception {
-            N1qlQueryResult results = bucket.query(N1qlQuery.simple("select * from test"));
+            N1qlQueryResult results = bucket.query(N1qlQuery.simple("select * from test", N1qlParams.build().consistency(ScanConsistency.REQUEST_PLUS)));
+
+            System.out.println("Shiny: " + results.allRows().size());
 
             for (N1qlQueryRow row : results.allRows()) {
                 row.value();
